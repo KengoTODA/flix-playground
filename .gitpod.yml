@@ -4,6 +4,8 @@ tasks:
   - init: |
       cd /workspace
       git clone https://github.com/KengoTODA/flix-gradle-plugin.git
+      cd /workspace/flix-playground
+      ./gradlew build
 
 vscode:
   extensions:
