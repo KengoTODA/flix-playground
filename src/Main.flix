@@ -1,10 +1,56 @@
 namespace SemVer2 {
-  type alias SemVer2 = {
-    major :: Int32,
-    minor :: Int32,
-    patch :: Int32,
-    preRelease :: String,
-    build :: String
+  type alias PreRelease = String
+  type alias Build = String
+
+  enum SemVer2 with Eq, Order {
+    case Standard(Int32, Int32, Int32),
+    case WithPreRelease(Int32, Int32, Int32, PreRelease)
+    case WithBuild(Int32, Int32, Int32, Build)
+    case WithPreReleaseAndBuild(Int32, Int32, Int32, PreRelease, Build)
+  }
+
+  pub def getMajor(v: SemVer2): Int32 = match v {
+    case Standard(x,_,_) => x
+    case WithPreRelease(x,_,_,_) => x
+    case WithBuild(x,_,_,_) => x
+    case WithPreReleaseAndBuild(x,_,_,_,_) => x
+  }
+
+  pub def getMinor(v: SemVer2): Int32 = match v {
+    case Standard(_,y,_) => y
+    case WithPreRelease(_,y,_,_) => y
+    case WithBuild(_,y,_,_) => y
+    case WithPreReleaseAndBuild(_,y,_,_,_) => y
+  }
+
+  pub def getPatch(v: SemVer2): Int32 = match v {
+    case Standard(_,_,z) => z
+    case WithPreRelease(_,_,z,_) => z
+    case WithBuild(_,_,z,_) => z
+    case WithPreReleaseAndBuild(_,_,z,_,_) => z
+  }
+
+  pub def getPreRelease(v: SemVer2): Option[String] = match v {
+    case Standard(_,_,_) => None
+    case WithPreRelease(_,_,_,p) => Some(p)
+    case WithBuild(_,_,_,_) => None
+    case WithPreReleaseAndBuild(_,_,_,p,_) => Some(p)
+  }
+
+  pub def getBuild(v: SemVer2): Option[String] = match v {
+    case Standard(_,_,_)=> None
+    case WithPreRelease(_,_,_,_) => None
+    case WithBuild(_,_,_,b) => Some(b)
+    case WithPreReleaseAndBuild(_,_,_,_,b) => Some(b)
+  }
+
+  instance ToString[SemVer2] {
+    pub def toString(v: SemVer2): String = match v {
+      case Standard(x,y,z) => "${x}.${y}.${z}"
+      case WithPreRelease(x,y,z,p) => "${x}.${y}.${z}-${p}"
+      case WithBuild(x,y,z,b) => "${x}.${y}.${z}+${b}"
+      case WithPreReleaseAndBuild(x,y,z,p,b) => "${x}.${y}.${z}-${p}+${b}"
+    }
   }
 
   def semVer2Body(body: String): Result[List[Int32], String] =
@@ -14,19 +60,21 @@ namespace SemVer2 {
       case _ => Err("Invalid format (illegal numbers of dots)")
     }
 
-  def map(preRelease: String, build: String, a: Array[Int32]): SemVer2 & Impure =
-    {
-      major = a[0],
-      minor = a[1],
-      patch = a[2],
-      preRelease = preRelease |> String.drop(1),
-      build = build |> String.drop(1)
+  def map(preRelease: PreRelease, build: Build, l: List[Int32]): Result[SemVer2, String] =
+    match l {
+      case x :: y :: z :: Nil => Ok(match (preRelease,build) {
+        case ("", "") => Standard(x, y, z)
+        case (_,  "") => WithPreRelease(x, y, z, preRelease)
+        case ("", _)  => WithBuild(x, y, z, build)
+        case (_,  _)  => WithPreReleaseAndBuild(x, y, z, preRelease, build)
+      })
+      case _ => Err("Unreachable")
     }
 
-  pub def semVer2(string: String): Result[SemVer2, String] & Impure =
+  pub def parse(string: String): Result[SemVer2, String] =
     let (others, build) = String.breakOnLeft({substr = "+"}, string);
     let (body, preRelease) = String.breakOnLeft({substr = "-"}, others);
-    semVer2Body(body) |> Result.map(split: List[Int32] -> {
-      split |> List.toArray |> map(preRelease, build)
+    semVer2Body(body) |> Result.flatMap(split: List[Int32] -> {
+      split |> map(preRelease |> String.drop(1), build |> String.drop(1))
     })
 }

@@ -1,67 +1,147 @@
-use SemVer2.semVer2;
+use SemVer2.parse;
 
 @test
-def testMajor(): Bool & Impure =
-  match semVer2("1.2.3-alpha+001") {
-      case Ok(v) => {
-          v.major == 1
-        }
-      case Err(_s) => false
+def testMajor(): Bool =
+  match parse("1.2.3-alpha+001") {
+      case Ok(v) => SemVer2.getMajor(v) == 1
+      case _ => false
   }
 
 @test
-def testMinor(): Bool & Impure =
-  match semVer2("1.2.3-alpha+001") {
-      case Ok(v) => {
-          v.minor == 2
-        }
-      case Err(_s) => false
+def testMinor(): Bool =
+  match parse("1.2.3-alpha+001") {
+      case Ok(v) => SemVer2.getMinor(v) == 2
+      case _ => false
   }
 
 @test
-def testPatch(): Bool & Impure =
-  match semVer2("1.2.3-alpha+001") {
-    case Ok(v) => {
-      v.patch == 3
+def testPatch(): Bool =
+  match parse("1.2.3-alpha+001") {
+    case Ok(v) => SemVer2.getPatch(v) == 3
+    case _ => false
+  }
+
+@test
+def testPreRelease(): Bool =
+  match parse("1.2.3-alpha+001") {
+    case Ok(v) => match SemVer2.getPreRelease(v) {
+        case Some(p) => p == "alpha"
+        case _ => false
     }
-    case Err(_s) => false
+    case _ => false
   }
 
 @test
-def testPreRelease(): Bool & Impure =
-  match semVer2("1.2.3-alpha+001") {
-    case Ok(v) => {
-      v.preRelease == "alpha"
+def testBuild(): Bool =
+  match parse("1.2.3-alpha+001") {
+    case Ok(v) => match SemVer2.getBuild(v) {
+        case Some(p) => p == "001"
+        case _ => false
     }
-    case Err(_s) => false
+    case _ => false
   }
 
 @test
-def testBuild(): Bool & Impure =
-  match semVer2("1.2.3-alpha+001") {
-    case Ok(v) => {
-      v.build == "001"
-    }
-    case Err(_s) => false
-  }
-
-@test
-def testLessDots(): Bool & Impure =
-  match semVer2("1.2-alpha+001") {
+def testLessDots(): Bool =
+  match parse("1.2-alpha+001") {
     case Ok(_v) => false
     case Err(s) => s == "Invalid format (illegal numbers of dots)"
   }
 
 @test
-def testManyDots(): Bool & Impure =
-  match semVer2("1.2.3.4-alpha+001") {
+def testManyDots(): Bool =
+  match parse("1.2.3.4-alpha+001") {
     case Ok(_v) => false
     case Err(s) => s == "Invalid format (illegal numbers of dots)"
   }
 
 @test
-def testNotNumericMajor(): Bool & Impure =
-  match semVer2("foo.2.3-alpha+001") {
+def testNotNumericMajor(): Bool =
+  match parse("foo.2.3-alpha+001") {
     case Ok(_v) => false
     case Err(s) => s == "Int32.fromString"
+  }
+
+@test
+def testToString01(): Bool =
+  match parse("1.2.3") {
+    case Ok(v) => "${v}" == "1.2.3"
+    case Err(_) => false
+  }
+
+@test
+def testToString02(): Bool =
+  match parse("1.2.3-beta.1") {
+    case Ok(v) => "${v}" == "1.2.3-beta.1"
+    case Err(_) => false
+  }
+ 
+@test
+def testToString03(): Bool =
+  match parse("1.2.3+001") {
+    case Ok(v) => "${v}" == "1.2.3+001"
+    case Err(_) => false
+  }
+
+@test
+def testToString04(): Bool =
+  match parse("1.2.3-rc+001") {
+    case Ok(v) => "${v}" == "1.2.3-rc+001"
+    case Err(_) => false
+  }
+
+@test
+def testEq01(): Bool =
+  match (parse("1.2.3") :: parse("1.2.3") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l == r
+    case _ => false
+  }
+
+@test
+def testEq02(): Bool =
+  match (parse("1.2.3-rc.1") :: parse("1.2.3") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l != r
+    case _ => false
+  }
+
+@test
+def testEq03(): Bool =
+  match (parse("1.2.3-rc.1") :: parse("1.2.3-rc.2") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l != r
+    case _ => false
+  }
+
+@test
+def testCompare01(): Bool =
+  match (parse("1.2.3") :: parse("1.2.4") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l < r
+    case _ => false
+  }
+
+@test
+def testCompare02(): Bool =
+  match (parse("1.2.3") :: parse("1.3.0") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l < r
+    case _ => false
+  }
+
+@test
+def testCompare03(): Bool =
+  match (parse("1.2.3") :: parse("2.0.0") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l < r
+    case _ => false
+  }
+
+@test
+def testCompare04(): Bool =
+  match (parse("1.2.3-beta") :: parse("1.2.3") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l < r
+    case _ => false
+  }
+
+@test
+def testCompare05(): Bool =
+  match (parse("1.2.3-beta.1") :: parse("1.2.3-beta.2") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l < r
+    case _ => false
   }
