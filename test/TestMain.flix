@@ -1,3 +1,5 @@
+use SemVer2.semVer2;
+
 @test
 def testMajor(): Bool & Impure =
   match semVer2("1.2.3-alpha+001") {
