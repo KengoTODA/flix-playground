@@ -141,6 +141,20 @@ def testCompare04(): Bool =
 
 @test
 def testCompare05(): Bool =
+  match (parse("1.2.3") :: parse("1.2.3-beta") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l > r
+    case _ => false
+  }
+
+@test
+def testCompare06(): Bool =
+  match (parse("1.2.3-alpha") :: parse("1.2.3-beta") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l < r
+    case _ => false
+  }
+
+@test
+def testCompare07(): Bool =
   match (parse("1.2.3-beta.1") :: parse("1.2.3-beta.2") :: Nil) |> Result.sequence {
     case Ok(l :: r :: Nil) => l < r
     case _ => false

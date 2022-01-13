@@ -2,7 +2,7 @@ namespace SemVer2 {
   type alias PreRelease = String
   type alias Build = String
 
-  enum SemVer2 with Eq, Order {
+  enum SemVer2 with Eq {
     case Standard(Int32, Int32, Int32),
     case WithPreRelease(Int32, Int32, Int32, PreRelease)
     case WithBuild(Int32, Int32, Int32, Build)
@@ -51,6 +51,35 @@ namespace SemVer2 {
       case WithBuild(x,y,z,b) => "${x}.${y}.${z}+${b}"
       case WithPreReleaseAndBuild(x,y,z,p,b) => "${x}.${y}.${z}-${p}+${b}"
     }
+  }
+
+  def comparePreRelease(l: SemVer2, r: SemVer2): Comparison =
+    import java.lang.String.compareTo(String);
+
+    let lp = getPreRelease(l);
+    let rp = getPreRelease(r);
+    if (Option.isEmpty(lp)) GreaterThan
+    else if (Option.isEmpty(rp)) LessThan
+    else Comparison.fromInt((Option.getWithDefault("", lp) `compareTo` Option.getWithDefault("", rp)) as & Pure)
+
+  def compareBuild(l: SemVer2, r: SemVer2): Comparison =
+    import java.lang.String.compareTo(String);
+
+    let lb = getBuild(l);
+    let rb = getBuild(r);
+
+    if (Option.isEmpty(lb)) GreaterThan
+    else if (Option.isEmpty(rb)) LessThan
+    else Comparison.fromInt((Option.getWithDefault("", lb) `compareTo` Option.getWithDefault("", rb)) as & Pure)
+
+  instance Order[SemVer2] {
+    @Time(1) @Space(1)
+    pub def compare(l: SemVer2, r: SemVer2): Comparison =
+      if      (getMajor(l) != getMajor(r)) Comparison.fromInt(getMajor(l) - getMajor(r))
+      else if (getMinor(l) != getMinor(r)) Comparison.fromInt(getMinor(l) - getMinor(r))
+      else if (getPatch(l) != getPatch(r)) Comparison.fromInt(getPatch(l) - getPatch(r))
+      else if (comparePreRelease(l, r) != EqualTo) comparePreRelease(l, r)
+      else compareBuild(l, r)
   }
 
   def semVer2Body(body: String): Result[List[Int32], String] =
