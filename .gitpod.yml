@@ -1,10 +1,5 @@
 image: gitpod/workspace-full
 
-tasks:
-  - init: |
-      ./gradlew build
-
 vscode:
   extensions:
     - https://github.com/KengoTODA/vscode-flix/releases/download/0.57.0/flix-0.57.0.vsix
-    - mathiasfrohlich.kotlin
