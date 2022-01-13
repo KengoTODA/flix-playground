@@ -54,23 +54,23 @@ namespace SemVer2 {
   }
 
   def comparePreRelease(l: SemVer2, r: SemVer2): Comparison =
-    import java.lang.String.compareTo(String);
+    use Order.compare;
 
     let lp = getPreRelease(l);
     let rp = getPreRelease(r);
-    if (Option.isEmpty(lp)) GreaterThan
-    else if (Option.isEmpty(rp)) LessThan
-    else Comparison.fromInt((Option.getWithDefault("", lp) `compareTo` Option.getWithDefault("", rp)) as & Pure)
+    if (Option.isEmpty(lp) and (not Option.isEmpty(rp))) GreaterThan
+    else if (Option.isEmpty(rp) and (not Option.isEmpty(lp))) LessThan
+    else Option.getWithDefault("", lp) `compare` Option.getWithDefault("", rp)
 
   def compareBuild(l: SemVer2, r: SemVer2): Comparison =
-    import java.lang.String.compareTo(String);
+    use Order.compare;
 
     let lb = getBuild(l);
     let rb = getBuild(r);
 
-    if (Option.isEmpty(lb)) GreaterThan
-    else if (Option.isEmpty(rb)) LessThan
-    else Comparison.fromInt((Option.getWithDefault("", lb) `compareTo` Option.getWithDefault("", rb)) as & Pure)
+    if (Option.isEmpty(lb) and (not Option.isEmpty(rb))) GreaterThan
+    else if (Option.isEmpty(rb) and (not Option.isEmpty(lb))) LessThan
+    else Option.getWithDefault("", lb) `compare` Option.getWithDefault("", rb)
 
   instance Order[SemVer2] {
     @Time(1) @Space(1)
