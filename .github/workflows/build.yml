@@ -14,8 +14,10 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-    - run: ./gradlew build --no-daemon
+    - run: |
+        curl -L -O https://github.com/flix/flix/releases/download/v0.26.0/flix.jar
+        java -jar flix.jar test
     - uses: actions/upload-artifact@v2
       with:
-        name: reports
-        path: build/reports
+        name: build result
+        path: build
