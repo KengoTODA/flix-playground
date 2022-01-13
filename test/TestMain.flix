@@ -112,6 +112,13 @@ def testEq03(): Bool =
   }
 
 @test
+def testCompare00(): Bool =
+  match (parse("2.2.3") :: parse("1.2.3") :: Nil) |> Result.sequence {
+    case Ok(l :: r :: Nil) => l > r
+    case _ => false
+  }
+
+@test
 def testCompare01(): Bool =
   match (parse("1.2.3") :: parse("1.2.4") :: Nil) |> Result.sequence {
     case Ok(l :: r :: Nil) => l < r
