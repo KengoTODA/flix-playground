@@ -17,7 +17,12 @@ jobs:
     - run: |
         curl -L -O https://github.com/flix/flix/releases/download/v0.26.0/flix.jar
         java -jar flix.jar test
+        java -jar flix.jar build-pkg
     - uses: actions/upload-artifact@v2
       with:
         name: build result
         path: build
+    - uses: actions/upload-artifact@v2
+      with:
+        name: pkg file
+        path: flix-playground.fpkg
