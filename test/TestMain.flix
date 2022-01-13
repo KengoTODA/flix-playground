@@ -170,6 +170,6 @@ def testCompare07(): Bool =
 @test
 def testCompare08(): Bool =
   match (parse("1.2.3") :: parse("1.2.3") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l == r
+    case Ok(l :: r :: Nil) => l <= r
     case _ => false
   }
