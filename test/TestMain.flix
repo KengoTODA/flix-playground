@@ -91,11 +91,12 @@ def testToString04(): Bool =
   }
 
 @test
-def testEq01(): Bool =
-  match (parse("1.2.3") :: parse("1.2.3") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l == r
-    case _ => false
-  }
+def testEq01(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3");
+    let* r = parse("1.2.3");
+    Ok(l == r)
+  } |> Result.getWithDefault(false)
 
 @test
 def testEq02(): Bool =
