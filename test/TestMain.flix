@@ -99,78 +99,89 @@ def testEq01(): Bool = {
   } |> Result.getWithDefault(false)
 
 @test
-def testEq02(): Bool =
-  match (parse("1.2.3-rc.1") :: parse("1.2.3") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l != r
-    case _ => false
-  }
+def testEq02(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3-rc.1");
+    let* r = parse("1.2.3");
+    Ok(l != r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testEq03(): Bool =
-  match (parse("1.2.3-rc.1") :: parse("1.2.3-rc.2") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l != r
-    case _ => false
-  }
+def testEq03(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3-rc.1");
+    let* r = parse("1.2.3-rc.2");
+    Ok(l != r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare00(): Bool =
-  match (parse("2.2.3") :: parse("1.2.3") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l > r
-    case _ => false
-  }
+def testCompare00(): Bool = {
+    use Result.flatMap;
+    let* l = parse("2.2.3");
+    let* r = parse("1.2.3");
+    Ok(l > r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare01(): Bool =
-  match (parse("1.2.3") :: parse("1.2.4") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l < r
-    case _ => false
-  }
+def testCompare01(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3");
+    let* r = parse("1.2.4");
+    Ok(l < r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare02(): Bool =
-  match (parse("1.2.3") :: parse("1.3.0") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l < r
-    case _ => false
-  }
+def testCompare02(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3");
+    let* r = parse("1.3.0");
+    Ok(l < r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare03(): Bool =
-  match (parse("1.2.3") :: parse("2.0.0") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l < r
-    case _ => false
-  }
+def testCompare03(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3");
+    let* r = parse("2.0.0");
+    Ok(l < r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare04(): Bool =
-  match (parse("1.2.3-beta") :: parse("1.2.3") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l < r
-    case _ => false
-  }
+def testCompare04(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3-beta");
+    let* r = parse("1.2.3");
+    Ok(l < r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare05(): Bool =
-  match (parse("1.2.3") :: parse("1.2.3-beta") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l > r
-    case _ => false
-  }
+def testCompare05(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3");
+    let* r = parse("1.2.3-beta");
+    Ok(l > r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare06(): Bool =
-  match (parse("1.2.3-alpha") :: parse("1.2.3-beta") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l < r
-    case _ => false
-  }
+def testCompare06(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3-alpha");
+    let* r = parse("1.2.3-beta");
+    Ok(l < r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare07(): Bool =
-  match (parse("1.2.3-beta.1") :: parse("1.2.3-beta.2") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l < r
-    case _ => false
-  }
+def testCompare07(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3-beta.1");
+    let* r = parse("1.2.3-beta.2");
+    Ok(l < r)
+  } |> Result.getWithDefault(false)
 
 @test
-def testCompare08(): Bool =
-  match (parse("1.2.3") :: parse("1.2.3") :: Nil) |> Result.sequence {
-    case Ok(l :: r :: Nil) => l <= r
-    case _ => false
-  }
+def testCompare08(): Bool = {
+    use Result.flatMap;
+    let* l = parse("1.2.3");
+    let* r = parse("1.2.3");
+    Ok(l <= r)
+  } |> Result.getWithDefault(false)
